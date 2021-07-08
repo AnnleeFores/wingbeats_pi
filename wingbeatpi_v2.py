@@ -1,6 +1,7 @@
 
 from __future__ import division
 from __future__ import print_function
+import move
 print()
 print('Loading libs...')
 
@@ -18,6 +19,7 @@ else:
 import soundfile as sf
 
 import tensorflow as tf
+from time import sleep
 
 
 def make_sure_path_exists(path):
@@ -60,7 +62,7 @@ input_shape = (5000, 1)
 
 test_list_file = 'test_list'
 
-path_to_watch = "/bluetooth"
+path_to_watch = "test"
 
 target_names = ['Ae. aegypti', 'Ae. albopictus', 'An. gambiae', 
 'An. arabiensis', 'C. pipiens', 'C. quinquefasciatus']
@@ -68,8 +70,8 @@ target_names = ['Ae. aegypti', 'Ae. albopictus', 'An. gambiae',
 print()
 print('Loading model...') 
 
-with tf.gfile.FastGFile(model_name, 'rb') as f:
-    graph_def = tf.GraphDef()
+with tf.compat.v1.gfile.FastGFile(model_name, 'rb') as f:
+    graph_def = tf.compat.v1.GraphDef()
     graph_def.ParseFromString(f.read())
     _ = tf.import_graph_def(graph_def, name = '')
 
@@ -89,15 +91,15 @@ for i in range(len(test_list)):
 print()
 print('STOPPED! Press start at the window, send samples and watch the results on the screen...')
 
-with tf.Session() as sess:
+with tf.compat.v1.Session() as sess:
     x = sess.graph.get_tensor_by_name('input_1:0')
     softmax_tensor = sess.graph.get_tensor_by_name('output_node:0')
 
     def start_monitor():
         global MONITOR_STATE
 
-        button1.config(state="disabled")
-        button2.config(state="normal")
+        # button1.config(state="disabled")
+        # button2.config(state="normal")
 
         root.update_idletasks()
 
@@ -115,6 +117,8 @@ with tf.Session() as sess:
 
         print()
         print('STARTED! Monitoring...')
+        sleep(3)
+        move.movefile()
 
         while MONITOR_STATE:
             time.sleep(0.001)
@@ -175,22 +179,22 @@ with tf.Session() as sess:
             before = after
 
 
-    def stop_monitor():
-        global MONITOR_STATE
+    # def stop_monitor():
+    #     global MONITOR_STATE
 
-        button2.config(state="disabled")
-        button1.config(state="normal")
+    #     button2.config(state="disabled")
+    #     button1.config(state="normal")
 
-        root.update_idletasks()
+    #     root.update_idletasks()
         
-        MONITOR_STATE = False
+    #     MONITOR_STATE = False
 
-        print()
-        print('STOPPED! Press start at the window, send samples and watch the results on the screen...')
+    #     print()
+    #     print('STOPPED! Press start at the window, send samples and watch the results on the screen...')
 
 
     root = tk.Tk()
-    root.title("Wingbeats Pi")
+    root.title("Solar Scare")
     center(root)
     root.resizable(0, 0)
     frame = tk.Frame(root)
@@ -205,17 +209,17 @@ with tf.Session() as sess:
     frame.pack()
     root.update_idletasks()
 
-    btn_text1 = tk.StringVar()
-    button1 = Button(root, height = 4, width = 20, textvariable = btn_text1, command = start_monitor) 
-    btn_text1.set("START")
-    button1.pack()
+    start_monitor()
 
-    btn_text2 = tk.StringVar()
-    button2 = Button(root, height = 4, width = 20, textvariable = btn_text2, command = stop_monitor) 
-    btn_text2.set("STOP")
-    button2.pack()
-    button2.config(state = "disabled")
+    # btn_text2 = tk.StringVar()
+    # button2 = Button(root, height = 4, width = 20, textvariable = btn_text2, command = stop_monitor) 
+    # btn_text2.set("STOP")
+    # button2.pack()
+    # button2.config(state = "disabled")
+
 
     root.protocol("WM_DELETE_WINDOW", on_closing)
 
     root.mainloop()
+
+
